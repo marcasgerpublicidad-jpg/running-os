@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@200;300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    @apply bg-ros-bg text-ros-text;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar        { width: 4px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
+  ::-webkit-scrollbar-thumb  { background: #383838; border-radius: 2px; }
+}
+
+@layer components {
+  .card {
+    @apply bg-ros-card border border-ros-border;
+  }
+
+  .label-xs {
+    @apply font-mono text-[9px] tracking-[0.22em] uppercase text-ros-mid;
+  }
+
+  .label-sm {
+    @apply font-mono text-[10px] tracking-[0.18em] uppercase text-ros-muted;
+  }
+}
