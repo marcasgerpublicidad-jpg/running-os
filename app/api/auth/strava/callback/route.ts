@@ -1,5 +1,5 @@
 /**
- * app/api/strava/callback/route.ts
+ * app/api/auth/strava/callback/route.ts
  * ─────────────────────────────────────────────────────────────────────────────
  * OAuth Step 2: Handles the Strava redirect callback.
  *
@@ -10,8 +10,8 @@
  *   ?error=access_denied
  *
  * Set STRAVA_REDIRECT_URI to:
- *   http://localhost:3000/api/strava/callback  (development)
- *   https://yourdomain.com/api/strava/callback (production)
+ *   http://localhost:3000/api/auth/strava/callback  (development)
+ *   https://yourdomain.com/api/auth/strava/callback (production)
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -26,13 +26,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const error = searchParams.get("error");
   if (error) {
     console.warn("[Strava OAuth] User denied authorization:", error);
-    return NextResponse.redirect(new URL("/connect?error=denied", request.url));
+    const url = request.nextUrl.clone();
+    url.pathname = "/connect";
+    url.search = "?error=denied";
+    return NextResponse.redirect(url);
   }
 
   // ── Happy path: exchange code for tokens ───────────────────────────────────
   const code = searchParams.get("code");
   if (!code) {
-    return NextResponse.redirect(new URL("/connect?error=no_code", request.url));
+    const url = request.nextUrl.clone();
+    url.pathname = "/connect";
+    url.search = "?error=no_code";
+    return NextResponse.redirect(url);
   }
 
   try {
@@ -46,10 +52,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
 
     // Redirect to dashboard
-    return NextResponse.redirect(new URL("/dashboard?connected=true", request.url));
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    url.search = "?connected=true";
+    return NextResponse.redirect(url);
 
   } catch (err) {
     console.error("[Strava OAuth] Token exchange error:", err);
-    return NextResponse.redirect(new URL("/connect?error=token_exchange", request.url));
+    const url = request.nextUrl.clone();
+    url.pathname = "/connect";
+    url.search = "?error=token_exchange";
+    return NextResponse.redirect(url);
   }
 }

@@ -39,29 +39,28 @@ export default function RecoveryPanel({ data }: RecoveryPanelProps) {
   const offset = circumference - (data.score / 100) * circumference;
 
   return (
-    <div className="bg-ros-card border border-ros-border p-6 flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-0">
-        <span className="font-mono text-[10px] font-semibold tracking-[0.2em] uppercase text-ros-muted">
+    <div className="ros-panel p-7 flex flex-col">
+      <div className="flex items-center justify-between mb-1">
+        <span className="ros-module-title">
           Recuperación
+        </span>
+        <span className="font-mono text-[8px] text-ros-faint tracking-[0.24em] uppercase">
+          Biomarkers
         </span>
       </div>
 
-      {/* Ring */}
-      <div className="flex flex-col items-center py-5">
+      <div className="flex flex-col items-center py-6">
         <svg width="120" height="120" viewBox="0 0 120 120">
-          {/* Background track */}
           <circle
             cx="60" cy="60" r={radius}
             fill="none"
-            stroke="#222222"
+            stroke="#20262d"
             strokeWidth="8"
           />
-          {/* Progress arc */}
           <circle
             cx="60" cy="60" r={radius}
             fill="none"
-            stroke="#4ADE80"
+            stroke="#88b89a"
             strokeWidth="8"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
@@ -73,9 +72,9 @@ export default function RecoveryPanel({ data }: RecoveryPanelProps) {
           <text
             x="60" y="56"
             textAnchor="middle"
-            fill="#F5F5F1"
-            fontFamily="IBM Plex Mono"
-            fontSize="22"
+            fill="#f5f7fa"
+            fontFamily="Manrope"
+            fontSize="24"
             fontWeight="700"
           >
             {data.score}
@@ -83,7 +82,7 @@ export default function RecoveryPanel({ data }: RecoveryPanelProps) {
           <text
             x="60" y="72"
             textAnchor="middle"
-            fill="#555555"
+            fill="#67707d"
             fontFamily="IBM Plex Mono"
             fontSize="8"
             letterSpacing="2"
@@ -93,7 +92,6 @@ export default function RecoveryPanel({ data }: RecoveryPanelProps) {
         </svg>
       </div>
 
-      {/* Stat rows */}
       <div className="flex flex-col">
         <StatRow
           label="Sueño"

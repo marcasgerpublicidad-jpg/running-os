@@ -4,6 +4,8 @@ import type { NextSession as NextSessionData } from "@/lib/data";
 
 interface NextSessionProps {
   session: NextSessionData;
+  title?: string;
+  note?: string;
 }
 
 interface ParamRowProps {
@@ -13,7 +15,7 @@ interface ParamRowProps {
 
 function ParamRow({ label, value }: ParamRowProps) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-ros-border last:border-b-0">
+    <div className="flex items-center justify-between py-2.5 border-b border-ros-border last:border-b-0">
       <span className="font-mono text-[9px] text-ros-mid tracking-[0.16em] uppercase">
         {label}
       </span>
@@ -24,18 +26,25 @@ function ParamRow({ label, value }: ParamRowProps) {
   );
 }
 
-export default function NextSession({ session }: NextSessionProps) {
+export default function NextSession({ session, title, note }: NextSessionProps) {
   return (
-    <div className="bg-ros-card border border-ros-border p-6 flex flex-col">
-      {/* Header */}
+    <div className="ros-hero-panel flex flex-col">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[10px] font-semibold tracking-[0.2em] uppercase text-ros-muted">
-          Próxima sesión
+        <span className="ros-module-title">
+          {title ?? "Próxima sesión"}
+        </span>
+        <span className="font-mono text-[8px] text-ros-faint tracking-[0.22em] uppercase">
+          Operativa del día
         </span>
       </div>
 
-      {/* Session type — large */}
-      <div className="font-mono text-[28px] font-bold text-ros-bright leading-tight tracking-[-0.01em] mt-2 mb-4">
+      {note ? (
+        <div className="relative mt-3 max-w-[34ch] font-sans text-sm text-ros-muted leading-6">
+          {note}
+        </div>
+      ) : null}
+
+      <div className="relative font-sans text-[38px] font-semibold text-ros-bright leading-[0.95] tracking-[-0.07em] mt-5 mb-7">
         {session.type.split(" ").map((word, i) => (
           <span key={i}>
             {word}
@@ -44,8 +53,7 @@ export default function NextSession({ session }: NextSessionProps) {
         ))}
       </div>
 
-      {/* Parameters */}
-      <div className="flex-1">
+      <div className="relative flex-1 border-y border-white/[0.06] py-2">
         <ParamRow label="Duración"      value={session.duration} />
         <ParamRow label="Distancia est." value={session.distance} />
         <ParamRow label="Zona FC"        value={session.hrZone} />
@@ -53,13 +61,10 @@ export default function NextSession({ session }: NextSessionProps) {
         <ParamRow label="TSS estimado"   value={`~${session.estimatedTSS}`} />
       </div>
 
-      {/* CTA */}
       <button
-        className="mt-4 w-full bg-ros-bright text-ros-bg font-mono text-[10px] font-bold
-                   tracking-[0.18em] uppercase py-2.5 text-center
-                   hover:opacity-85 transition-opacity duration-200 cursor-pointer border-none"
+        className="ros-button mt-5 w-full"
       >
-        Iniciar sesión →
+        Iniciar sesión
       </button>
     </div>
   );

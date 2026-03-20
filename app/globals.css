@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@200;300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,29 +7,160 @@
 @layer base {
   html, body {
     @apply bg-ros-bg text-ros-text;
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'Manrope', sans-serif;
+    color-scheme: dark;
   }
 
   * {
     box-sizing: border-box;
   }
 
+  html {
+    background:
+      radial-gradient(circle at 12% 0%, rgba(210, 219, 231, 0.08), transparent 18%),
+      radial-gradient(circle at 82% 0%, rgba(123, 138, 156, 0.10), transparent 20%),
+      radial-gradient(circle at 50% 100%, rgba(59, 68, 79, 0.18), transparent 35%),
+      linear-gradient(180deg, #0a0b0d 0%, #060708 52%, #040506 100%);
+  }
+
+  body {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.018), rgba(255,255,255,0) 18%),
+      radial-gradient(circle at 18% 0%, rgba(255,255,255,0.035), transparent 22%),
+      radial-gradient(circle at 100% 0%, rgba(255,255,255,0.02), transparent 24%),
+      #060708;
+  }
+
   /* Custom scrollbar */
-  ::-webkit-scrollbar        { width: 4px; }
+  ::-webkit-scrollbar        { width: 6px; }
   ::-webkit-scrollbar-track  { background: transparent; }
-  ::-webkit-scrollbar-thumb  { background: #383838; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb  { background: #313842; border-radius: 999px; }
 }
 
 @layer components {
   .card {
-    @apply bg-ros-card border border-ros-border;
+    @apply bg-ros-card border border-ros-border shadow-ros-card;
   }
 
   .label-xs {
-    @apply font-mono text-[9px] tracking-[0.22em] uppercase text-ros-mid;
+    @apply font-mono text-[9px] tracking-[0.24em] uppercase text-ros-mid;
   }
 
   .label-sm {
     @apply font-mono text-[10px] tracking-[0.18em] uppercase text-ros-muted;
+  }
+
+  .ros-shell {
+    @apply bg-ros-shell;
+  }
+
+  .ros-panel {
+    @apply bg-ros-card/95 border border-ros-border shadow-ros-panel backdrop-blur-sm;
+    background-image:
+      linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0) 24%),
+      linear-gradient(180deg, rgba(28,31,35,0.18), rgba(10,12,14,0.03) 38%),
+      linear-gradient(180deg, rgba(9,11,13,0.82), rgba(9,11,13,0.68));
+    box-shadow:
+      0 26px 60px rgba(0,0,0,0.34),
+      inset 0 1px 0 rgba(255,255,255,0.05),
+      inset 0 -1px 0 rgba(255,255,255,0.02);
+  }
+
+  .ros-panel-muted {
+    @apply bg-ros-panel/70 border border-ros-border;
+    background-image:
+      linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0)),
+      linear-gradient(180deg, rgba(181,190,202,0.05), rgba(181,190,202,0));
+  }
+
+  .ros-kicker {
+    @apply font-mono text-[10px] tracking-[0.24em] uppercase text-ros-mid;
+  }
+
+  .ros-title {
+    @apply font-sans text-[30px] font-semibold tracking-[-0.05em] text-ros-bright;
+  }
+
+  .ros-body {
+    @apply font-sans text-sm leading-6 text-ros-muted;
+  }
+
+  .ros-button {
+    @apply inline-flex items-center justify-center border border-ros-border2 bg-ros-panel/70 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.16em] text-ros-text transition-all duration-300 hover:-translate-y-px hover:border-ros-steel/45 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-10;
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+    box-shadow:
+      0 10px 22px rgba(0,0,0,0.16),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .ros-button-primary {
+    @apply ros-button bg-ros-bright text-ros-bg border-transparent hover:bg-white;
+  }
+
+  .ros-input {
+    @apply border border-ros-border2 bg-white/[0.025] px-3.5 py-2.5 font-mono text-[11px] text-ros-bright outline-none transition-colors placeholder:text-ros-faint focus:border-ros-steel/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-10;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .ros-status-badge {
+    @apply inline-flex items-center gap-2 border px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.18em];
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .ros-empty-state {
+    @apply ros-panel flex flex-col items-center justify-center gap-3 px-8 py-12 text-center animate-fade-rise;
+  }
+
+  .ros-module-title {
+    @apply font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-ros-muted;
+  }
+
+  .ros-subtle-divider {
+    @apply border-ros-border;
+  }
+
+  .ros-app-shell {
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.02), transparent 18%),
+      radial-gradient(circle at 90% 0%, rgba(184,192,204,0.06), transparent 16%),
+      linear-gradient(180deg, rgba(255,255,255,0.018), rgba(255,255,255,0)),
+      #060708;
+  }
+
+  .ros-hero-panel {
+    @apply ros-panel relative overflow-hidden px-7 py-7;
+  }
+
+  .ros-hero-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at top right, rgba(184,192,204,0.10), transparent 20%),
+      linear-gradient(135deg, rgba(255,255,255,0.04), transparent 26%);
+    pointer-events: none;
+  }
+
+  .ros-surface-line {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  }
+
+  .ros-chip {
+    @apply inline-flex items-center justify-center border border-white/[0.06] bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] px-3.5 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ros-muted transition-all duration-200 hover:border-white/[0.10] hover:bg-white/[0.04] hover:text-ros-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-10;
+    box-shadow:
+      0 8px 18px rgba(0,0,0,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .ros-chip-active {
+    @apply border-white/[0.16] bg-[linear-gradient(180deg,rgba(212,220,230,0.12),rgba(255,255,255,0.05))] text-ros-bright;
+    box-shadow:
+      0 12px 28px rgba(0,0,0,0.18),
+      inset 0 1px 0 rgba(255,255,255,0.10),
+      0 0 0 1px rgba(184,192,204,0.10);
+  }
+
+  .ros-toggle-group {
+    @apply flex flex-wrap gap-2;
   }
 }

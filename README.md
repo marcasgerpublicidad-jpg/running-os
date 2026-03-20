@@ -80,7 +80,7 @@ Edit `.env.local`:
 ```env
 STRAVA_CLIENT_ID=your_client_id
 STRAVA_CLIENT_SECRET=your_client_secret
-STRAVA_REDIRECT_URI=http://localhost:3000/api/strava/callback
+STRAVA_REDIRECT_URI=http://localhost:3000/api/auth/strava/callback
 ```
 
 ### 3. Create a Strava app
@@ -115,7 +115,7 @@ GET /api/auth/strava
          ↓ redirect to Strava
 https://strava.com/oauth/authorize?client_id=...
          ↓ user grants access
-GET /api/strava/callback?code=abc123
+GET /api/auth/strava/callback?code=abc123
          ↓ POST to Strava token endpoint
          ↓ save tokens to httpOnly cookies
 GET /dashboard?connected=true

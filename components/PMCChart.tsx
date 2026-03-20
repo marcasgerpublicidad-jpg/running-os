@@ -17,6 +17,8 @@ interface PMCChartProps {
   data:  DailyMetrics[];
   /** How many trailing days to display. Default: 42 (full CTL window). */
   days?: number;
+  emptyStateTitle?: string;
+  emptyStateMessage?: string;
 }
 
 interface TooltipProps {
@@ -28,7 +30,7 @@ interface TooltipProps {
 function CustomTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-ros-surface border border-ros-border2 px-3 py-2.5">
+    <div className="bg-ros-surface border border-ros-border2 px-3 py-2.5 shadow-[0_18px_36px_rgba(0,0,0,0.32)]">
       <div className="font-mono text-[9px] text-ros-mid tracking-[0.1em] uppercase mb-2">
         {label}
       </div>
@@ -42,7 +44,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
   );
 }
 
-export default function PMCChart({ data, days = 42 }: PMCChartProps) {
+export default function PMCChart({ data, days = 42, emptyStateTitle, emptyStateMessage }: PMCChartProps) {
   // Slice to requested window and format date labels
   const chartData = data.slice(-days).map((d) => ({
     ...d,
@@ -50,100 +52,105 @@ export default function PMCChart({ data, days = 42 }: PMCChartProps) {
   }));
 
   // Show only ~6 evenly spaced x-axis labels
-  const tickInterval = Math.floor(chartData.length / 6);
+  const tickInterval = Math.max(0, Math.floor(chartData.length / 6));
 
   return (
-    <div className="bg-ros-card border border-ros-border p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <span className="font-mono text-[10px] font-semibold tracking-[0.2em] uppercase text-ros-muted">
+    <div className="ros-hero-panel">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex flex-col gap-2">
+          <span className="ros-module-title">
+            Performance Management Chart
+          </span>
+          <span className="font-sans text-[13px] text-ros-muted">
+            ATL, CTL y TSB integrados en un panel técnico de {days} días.
+          </span>
+        </div>
+        <span className="font-mono text-[9px] text-ros-faint tracking-[0.18em] uppercase border border-white/[0.08] px-3 py-1.5">
           Performance Management Chart · {days} días
         </span>
-        <span className="font-mono text-[9px] text-ros-faint tracking-[0.12em] uppercase
-                         border-b border-ros-faint pb-px cursor-pointer hover:text-ros-muted
-                         hover:border-ros-muted transition-colors">
-          Ver completo →
-        </span>
       </div>
 
-      {/* Chart */}
-      <ResponsiveContainer width="100%" height={160}>
-        <LineChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -28 }}>
-          <CartesianGrid
-            strokeDasharray="0"
-            stroke="#1C1C1C"
-            vertical={false}
-          />
-
-          {/* Zero line for TSB reference */}
-          <ReferenceLine y={0} stroke="#2A2A2A" strokeDasharray="4 4" />
-
-          <XAxis
-            dataKey="label"
-            tick={{ fontFamily: "IBM Plex Mono", fontSize: 8, fill: "#383838", letterSpacing: 1 }}
-            axisLine={false}
-            tickLine={false}
-            interval={tickInterval}
-          />
-          <YAxis
-            tick={{ fontFamily: "IBM Plex Mono", fontSize: 8, fill: "#383838" }}
-            axisLine={false}
-            tickLine={false}
-          />
-
-          <Tooltip content={<CustomTooltip />} />
-
-          {/* CTL — fitness (slow, blue) */}
-          <Line
-            type="monotone"
-            dataKey="ctl"
-            name="CTL"
-            stroke="#60A5FA"
-            strokeWidth={1.5}
-            dot={false}
-            activeDot={{ r: 3, fill: "#60A5FA" }}
-          />
-
-          {/* ATL — fatigue (fast, red) */}
-          <Line
-            type="monotone"
-            dataKey="atl"
-            name="ATL"
-            stroke="#F87171"
-            strokeWidth={1.5}
-            dot={false}
-            activeDot={{ r: 3, fill: "#F87171" }}
-          />
-
-          {/* TSB — form (dashed, green) */}
-          <Line
-            type="monotone"
-            dataKey="tsb"
-            name="TSB"
-            stroke="#4ADE80"
-            strokeWidth={1}
-            strokeDasharray="4 3"
-            dot={false}
-            activeDot={{ r: 3, fill: "#4ADE80" }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-
-      {/* Legend */}
-      <div className="flex gap-5 mt-3.5">
-        {[
-          { color: "#60A5FA", label: "CTL Forma crónica"  },
-          { color: "#F87171", label: "ATL Fatiga aguda"   },
-          { color: "#4ADE80", label: "TSB Balance"        },
-        ].map((item) => (
-          <div key={item.label} className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: item.color }} />
-            <span className="font-mono text-[9px] text-ros-mid tracking-[0.1em] uppercase">
-              {item.label}
-            </span>
+      {chartData.length === 0 ? (
+        <div className="ros-empty-state h-[240px] border border-dashed border-white/[0.08] bg-white/[0.02]">
+          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-ros-mid">
+            {emptyStateTitle ?? "Sin datos PMC"}
           </div>
-        ))}
-      </div>
+          <div className="font-sans text-sm text-ros-muted max-w-md">
+            {emptyStateMessage ?? "No hay suficientes datos para construir el PMC."}
+          </div>
+        </div>
+      ) : (
+        <>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -28 }}>
+              <CartesianGrid
+                strokeDasharray="2 8"
+                stroke="#242a31"
+                vertical={false}
+              />
+              <ReferenceLine y={0} stroke="#38404a" strokeDasharray="4 6" />
+
+              <XAxis
+                dataKey="label"
+                tick={{ fontFamily: "IBM Plex Mono", fontSize: 8, fill: "#67707d", letterSpacing: 1.5 }}
+                axisLine={false}
+                tickLine={false}
+                interval={tickInterval}
+              />
+              <YAxis
+                tick={{ fontFamily: "IBM Plex Mono", fontSize: 8, fill: "#67707d" }}
+                axisLine={false}
+                tickLine={false}
+              />
+
+              <Tooltip content={<CustomTooltip />} />
+              <Line
+                type="monotone"
+                dataKey="ctl"
+                name="CTL"
+                stroke="#90a9c7"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 3, fill: "#90a9c7" }}
+              />
+              <Line
+                type="monotone"
+                dataKey="atl"
+                name="ATL"
+                stroke="#b67d76"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 3, fill: "#b67d76" }}
+              />
+              <Line
+                type="monotone"
+                dataKey="tsb"
+                name="TSB"
+                stroke="#88b89a"
+                strokeWidth={1.4}
+                strokeDasharray="5 5"
+                dot={false}
+                activeDot={{ r: 3, fill: "#88b89a" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+
+          <div className="mt-5 flex gap-6">
+            {[
+              { color: "#90a9c7", label: "CTL Forma crónica"  },
+              { color: "#b67d76", label: "ATL Fatiga aguda"   },
+              { color: "#88b89a", label: "TSB Balance"        },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: item.color, boxShadow: `0 0 12px ${item.color}33` }} />
+                <span className="font-mono text-[8px] text-ros-mid tracking-[0.16em] uppercase">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -6,21 +6,21 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { type NextSearchParams } from "next/dist/server/request/search-params";
-
 interface ConnectPageProps {
-  searchParams: NextSearchParams;
+  // `searchParams` viene como objeto (no como Promise) en App Router.
+  // Lo tipamos de forma conservadora para evitar imports internos de Next.
+  searchParams: Record<string, string | string[] | undefined>;
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
   denied:         "Acceso denegado. No se otorgaron permisos a Running OS.",
   no_code:        "No se recibió código de autorización de Strava.",
   token_exchange: "Error al completar la autenticación. Intentá de nuevo.",
+  config:         "Strava no está configurado en este entorno. Completá STRAVA_CLIENT_ID/STRAVA_CLIENT_SECRET/STRAVA_REDIRECT_URI.",
 };
 
-export default async function ConnectPage({ searchParams }: ConnectPageProps) {
-  const params = await searchParams;
-  const errorKey = params?.error as string | undefined;
+export default function ConnectPage({ searchParams }: ConnectPageProps) {
+  const errorKey = searchParams?.error as string | undefined;
   const errorMsg = errorKey ? ERROR_MESSAGES[errorKey] ?? "Error desconocido." : null;
 
   return (

@@ -1,29 +1,23 @@
-import { resolveStravaToken } from "@/lib/stravaToken";
 import { getAthleteProfile }  from "@/lib/athleteProfile";
-import { fetchStravaActivities, normalizeActivities, type Activity } from "@/lib/strava";
+import { getDashboardMetrics } from "@/lib/dashboardData";
 import Sidebar          from "@/components/Sidebar";
 import ActivitiesClient from "@/components/ActivitiesClient";
 
-export default async function ActivitiesPage() {
-  const [athlete, resolved] = await Promise.all([getAthleteProfile(), resolveStravaToken()]);
-  let activities: Activity[] = [];
-  let error: string | null = null;
+export const dynamic = "force-dynamic";
 
-  if (resolved) {
-    try {
-      const raw = await fetchStravaActivities(resolved.accessToken, { perPage: 200, page: 1 });
-      activities = normalizeActivities(raw).reverse();
-    } catch (e) {
-      error = e instanceof Error ? e.message : "Error al cargar actividades";
-    }
-  } else {
-    error = "NOT_CONNECTED";
-  }
+export default async function ActivitiesPage() {
+  const [athlete, trainingData] = await Promise.all([getAthleteProfile(), getDashboardMetrics()]);
 
   return (
-    <div className="grid h-screen overflow-hidden" style={{ gridTemplateColumns: "220px 1fr" }}>
+    <div className="ros-app-shell grid h-screen overflow-hidden" style={{ gridTemplateColumns: "248px 1fr" }}>
       <Sidebar athlete={athlete} activeRoute="/activities" />
-      <ActivitiesClient activities={activities} error={error} />
+      <ActivitiesClient
+        activities={[...trainingData.activities].reverse()}
+        source={trainingData.source}
+        reason={trainingData.reason}
+        connectionStatus={trainingData.connectionStatus}
+        message={trainingData.message}
+      />
     </div>
   );
 }

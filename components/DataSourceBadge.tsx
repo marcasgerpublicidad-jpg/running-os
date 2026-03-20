@@ -1,45 +1,54 @@
 "use client";
 
-import type { DataSource } from "@/lib/dashboardData";
+import type { DataSource, TrainingDataReason } from "@/lib/dashboardData";
 
 interface DataSourceBadgeProps {
   source: DataSource;
+  connectionStatus: TrainingDataReason;
+  message?: string | null;
 }
 
-export default function DataSourceBadge({ source }: DataSourceBadgeProps) {
+export default function DataSourceBadge({ source, connectionStatus, message }: DataSourceBadgeProps) {
   const isStrava = source === "strava";
+  const isReconnectState =
+    connectionStatus === "not_connected" || connectionStatus === "token_invalid";
+  const statusLabel = isStrava
+    ? "Strava conectada"
+    : source === "not_connected" || isReconnectState
+      ? "Fallback activo · sin conexion"
+      : "Fallback activo · error de Strava";
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        {/* Source pill */}
+    <div className="ros-panel flex items-start justify-between px-5 py-4 animate-fade-rise">
+      <div className="flex items-center gap-3">
         <div
-          className={`flex items-center gap-1.5 px-2.5 py-1 border font-mono text-[9px]
-                      tracking-[0.14em] uppercase
+          className={`ros-status-badge
                       ${isStrava
-                        ? "border-ros-green/30 text-ros-green bg-ros-green/5"
-                        : "border-ros-faint text-ros-muted bg-ros-faint/10"}`}
+                        ? "border-ros-green/25 text-ros-green bg-[linear-gradient(180deg,rgba(136,184,154,0.12),rgba(136,184,154,0.05))]"
+                        : "border-ros-amber/25 text-ros-amber bg-[linear-gradient(180deg,rgba(183,154,105,0.16),rgba(183,154,105,0.06))]"}`}
         >
           <div
-            className={`w-1.5 h-1.5 rounded-full ${isStrava ? "bg-ros-green animate-pulse" : "bg-ros-muted"}`}
+            className={`w-1.5 h-1.5 rounded-full ${isStrava ? "bg-ros-green animate-pulse-dot" : "bg-ros-amber"}`}
           />
-          {isStrava ? "Datos en vivo · Strava" : "Datos demo"}
+          {statusLabel}
         </div>
 
-        {/* Connect CTA when not connected */}
-        {!isStrava && (
+        {message ? (
+          <div className="max-w-[620px] font-sans text-sm leading-6 text-ros-muted">
+            {message}
+          </div>
+        ) : null}
+
+        {isReconnectState && (
           <a
             href="/api/auth/strava"
-            className="font-mono text-[9px] text-ros-mid tracking-[0.12em] uppercase
-                       border-b border-ros-faint pb-px hover:text-ros-text hover:border-ros-muted
-                       transition-colors"
+            className="ros-button"
           >
-            Conectar Strava →
+            Conectar Strava
           </a>
         )}
       </div>
 
-      {/* Disconnect link when connected */}
       {isStrava && (
         <DisconnectButton />
       )}
@@ -56,8 +65,7 @@ function DisconnectButton() {
   return (
     <button
       onClick={handleDisconnect}
-      className="font-mono text-[9px] text-ros-faint tracking-[0.1em] uppercase
-                 hover:text-ros-muted transition-colors cursor-pointer bg-transparent border-none"
+      className="ros-button"
     >
       Desconectar
     </button>

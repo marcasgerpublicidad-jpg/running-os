@@ -23,7 +23,12 @@ import {
 import { getValidAccessToken } from "./stravaSession";
 import { TRAINING_HISTORY, PMC_SERIES, TODAY_METRICS } from "./data";
 
-export type DataSource = "strava" | "demo";
+export type DataSource = "strava" | "not_connected" | "fallback";
+export type TrainingDataReason =
+  | "connected"
+  | "not_connected"
+  | "token_invalid"
+  | "upstream_error";
 
 export interface DashboardMetrics {
   pmcSeries:     DailyMetrics[];
@@ -31,7 +36,63 @@ export interface DashboardMetrics {
   trainingDays:  TrainingDay[];
   activities:    Activity[];          // empty array when using demo data
   source:        DataSource;
+  reason: TrainingDataReason;
+  fallbackActive: boolean;
+  message: string | null;
+  connectionStatus: TrainingDataReason;
   athleteName?:  string;              // populated from Strava profile if connected
+}
+
+function buildFallbackMetrics(
+  source: Exclude<DataSource, "strava">,
+  reason: Exclude<TrainingDataReason, "connected">,
+  message: string
+): DashboardMetrics {
+  return {
+    pmcSeries: PMC_SERIES,
+    todayMetrics: TODAY_METRICS,
+    trainingDays: TRAINING_HISTORY,
+    activities: [],
+    source,
+    reason,
+    fallbackActive: true,
+    message,
+    connectionStatus: reason,
+  };
+}
+
+export interface TrainingDataApiPayload {
+  source: DataSource;
+  reason: TrainingDataReason;
+  message: string | null;
+  fallbackActive: boolean;
+  connectionStatus: TrainingDataReason;
+  activities: Activity[];
+  trainingDays: TrainingDay[];
+  pmc: DailyMetrics[];
+  today: DailyMetrics;
+  meta: {
+    activitiesCount: number;
+    fetchedAt: string;
+  };
+}
+
+export function toTrainingDataApiPayload(data: DashboardMetrics): TrainingDataApiPayload {
+  return {
+    source: data.source,
+    reason: data.reason,
+    message: data.message,
+    fallbackActive: data.fallbackActive,
+    connectionStatus: data.connectionStatus,
+    activities: data.activities,
+    trainingDays: data.trainingDays,
+    pmc: data.pmcSeries,
+    today: data.todayMetrics,
+    meta: {
+      activitiesCount: data.activities.length,
+      fetchedAt: new Date().toISOString(),
+    },
+  };
 }
 
 /**
@@ -47,32 +108,47 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   try {
     const accessToken = await getValidAccessToken();
 
-    if (accessToken) {
-      const rawActivities = await fetchStravaActivitiesLast90Days(accessToken);
-      const activities    = normalizeActivities(rawActivities);
-      const trainingDays  = activitiesToTrainingDays(activities);
-      const pmcSeries     = buildMetricSeries(trainingDays, 0, 0);
-      const todayMetrics  = pmcSeries[pmcSeries.length - 1];
-
-      return {
-        pmcSeries,
-        todayMetrics,
-        trainingDays,
-        activities,
-        source: "strava",
-      };
+    if (!accessToken) {
+      return buildFallbackMetrics(
+        "not_connected",
+        "not_connected",
+        "Strava sin conexion. Fallback activo para mantener el dashboard operativo."
+      );
     }
-  } catch (err) {
-    // Log but don't crash — fall through to demo data
-    console.warn("[dashboardData] Strava fetch failed, using demo data:", err);
-  }
 
-  // ── Fallback: demo data ───────────────────────────────────────────────────
-  return {
-    pmcSeries:    PMC_SERIES,
-    todayMetrics: TODAY_METRICS,
-    trainingDays: TRAINING_HISTORY,
-    activities:   [],
-    source:       "demo",
-  };
+    const rawActivities = await fetchStravaActivitiesLast90Days(accessToken);
+    const activities    = normalizeActivities(rawActivities);
+    const trainingDays  = activitiesToTrainingDays(activities);
+    const pmcSeries     = buildMetricSeries(trainingDays, 0, 0);
+    const todayMetrics  = pmcSeries[pmcSeries.length - 1];
+
+    return {
+      pmcSeries,
+      todayMetrics,
+      trainingDays,
+      activities,
+      source: "strava",
+      reason: "connected",
+      fallbackActive: false,
+      message: null,
+      connectionStatus: "connected",
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+
+    if (message === "STRAVA_UNAUTHORIZED") {
+      return buildFallbackMetrics(
+        "not_connected",
+        "token_invalid",
+        "Token de Strava invalido o vencido. Reconecta para volver a datos reales."
+      );
+    }
+
+    console.warn("[dashboardData] Strava fetch failed, using fallback data:", err);
+    return buildFallbackMetrics(
+      "fallback",
+      "upstream_error",
+      "No pudimos sincronizar Strava. Fallback activo hasta recuperar la conexion."
+    );
+  }
 }

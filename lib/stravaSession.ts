@@ -104,7 +104,9 @@ export async function getStravaSession(): Promise<StravaSession | null> {
  */
 export async function getValidAccessToken(): Promise<string | null> {
   const session = await getStravaSession();
-  if (!session) return null;
+  if (!session) {
+    return null;
+  }
 
   // Token is still valid — return it directly
   if (session.accessToken && !isTokenExpired(session.expiresAt)) {
@@ -117,8 +119,9 @@ export async function getValidAccessToken(): Promise<string | null> {
     await saveStravaSession(refreshed);
     return refreshed.access_token;
   } catch {
-    // Refresh token itself is invalid/revoked — clear session
-    await clearStravaSession();
+    // Refresh token itself is invalid/revoked.
+    // Don't mutate cookies here because this helper is also used from
+    // server-rendered pages, where cookie writes are not allowed.
     return null;
   }
 }

@@ -36,38 +36,45 @@ export default function Topbar({
   onSync,
 }: TopbarProps) {
   const s = SIGNAL_STYLES[readinessSignal];
+  const syncProps = onSync
+    ? { onClick: onSync }
+    : { href: "/api/auth/strava" };
 
   return (
-    <header className="h-14 flex-shrink-0 border-b border-ros-border flex items-center justify-between px-8">
-      {/* Left */}
-      <div className="flex items-baseline gap-3">
-        <span className="font-mono text-[13px] font-semibold text-ros-bright tracking-[0.1em] uppercase">
-          {title}
+    <header className="relative flex min-h-[108px] flex-shrink-0 items-end justify-between border-b border-white/[0.06] px-10 pb-6 pt-7">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.05),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
+      <div className="relative flex flex-col gap-2">
+        <span className="font-mono text-[9px] tracking-[0.28em] uppercase text-ros-mid">
+          Athlete Command
         </span>
-        <span className="font-mono text-[11px] text-ros-mid tracking-[0.06em]">
-          {date}
-        </span>
+        <div className="flex items-end gap-5">
+          <span className="font-sans text-[42px] font-semibold tracking-[-0.07em] text-ros-bright leading-none">
+            {title}
+          </span>
+          <span className="pb-1.5 font-mono text-[10px] text-ros-mid tracking-[0.08em] uppercase">
+            {date}
+          </span>
+        </div>
       </div>
 
-      {/* Right */}
-      <div className="flex items-center gap-5">
-        {/* Semáforo */}
-        <div className="flex items-center gap-2 px-3.5 py-1.5 border border-ros-border2 bg-ros-card">
+      <div className="relative flex items-center gap-3">
+        <div className="flex items-center gap-2.5 border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] px-4 py-2.5 shadow-[0_16px_30px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.04)]">
           <div className={`w-2 h-2 rounded-full ${s.dot} ${s.shadow}`} />
+          <span className="font-mono text-[8px] tracking-[0.24em] uppercase text-ros-mid">
+            Readiness
+          </span>
           <span className={`font-mono text-[10px] font-semibold tracking-[0.14em] uppercase ${s.label}`}>
             {readinessLabel}
           </span>
         </div>
 
-        {/* Sync */}
-        <button
-          onClick={onSync}
-          className="font-mono text-[10px] text-ros-mid tracking-[0.1em] uppercase px-3.5 py-1.5
-                     border border-ros-border2 bg-transparent hover:border-ros-muted hover:text-ros-text
-                     transition-colors duration-200 cursor-pointer"
+        <a
+          {...syncProps}
+          className="ros-button"
         >
-          ↻ Sync Strava
-        </button>
+          Sync Strava
+        </a>
       </div>
     </header>
   );
